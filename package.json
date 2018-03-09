@@ -2,7 +2,7 @@
   "name": "kuangkuang",
   "version": "0.0.0",
   "author": "inu1255 <929909260@qq.com>",
-  "description": "赚钱宝",
+  "description": "挖钱宝",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -24,6 +24,9 @@
     },
     "files": [
       "dist/electron/**/*"
+	],
+	"extraResources": [
+		"cmd/**/*"
 	],
 	"publish": [ {
 		"provider": "generic",

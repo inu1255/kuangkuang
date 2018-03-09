@@ -9,4 +9,4 @@ npm-debug.log.*
 thumbs.db
 !.gitkeep
 config.json
-src/main/cmd/acard/config.txt
+**/cmd/acard/config.txt

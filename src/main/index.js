@@ -1,7 +1,10 @@
 import { app, ipcMain } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import './window';
 import './tray';
 import cmd from './cmd';
+
+autoUpdater.checkForUpdatesAndNotify();
 //监听web page里发出的message
 ipcMain.on('start', (event, name, power) => {
 	console.log("开始");

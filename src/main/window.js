@@ -1,5 +1,4 @@
 import { app, BrowserWindow } from 'electron';
-import { autoUpdater } from 'electron-updater';
 
 if (process.env.NODE_ENV !== 'development') {
     global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\');
@@ -37,12 +36,4 @@ app.on('activate', () => {
     if (app.mainWindow === null) {
         createWindow();
     }
-});
-
-autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall();
-});
-
-app.on('ready', () => {
-    if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates();
 });

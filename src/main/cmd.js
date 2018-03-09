@@ -20,7 +20,8 @@ class Cmd {
     stop() {
         if (this.proc && !this.proc.killed) {
             console.log("停止子进程", this.proc.pid);
-            this.proc.kill();
+			this.proc.kill();
+			this.proc = null;
             // if (process.platform == "win32") {
             //     child.exec(`taskkill /pid ${this.proc.pid} -t -f`);
             // } else {

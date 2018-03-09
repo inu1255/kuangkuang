@@ -1,1 +1,0 @@
-nheqminer.exe -u t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.test -l zec.f2pool.com:3357 -t 8

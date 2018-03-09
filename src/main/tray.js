@@ -29,6 +29,9 @@ app.on('ready', () => {
         label: "检查更新",
         click() {
             autoUpdater.checkForUpdatesAndNotify();
+            autoUpdater.once("update-not-available", function(info) {
+                app.mainWindow.send("update", "没有可用更新");
+            });
         }
     }, {
         label: "退出",

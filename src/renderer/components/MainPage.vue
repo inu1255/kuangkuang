@@ -5,7 +5,7 @@
 			<el-input placeholder="填写支付宝账号以获取佣金" v-model="name" size="small" style="margin-top: 13px;"></el-input>
 		</div>
 		<div class="block">
-			<span class="demonstration">强度</span>
+			<span class="demonstration">强度:{{power}}</span>
 			<div style="padding:0 3px;">
 				<el-slider v-model="power" :step="1" show-stops :max="8" :min="1"></el-slider>
 			</div>
@@ -56,11 +56,15 @@ export default {
 			if (name != this.oname) this.oname = this.name = name;
 			if (power != this.opower) this.opower = this.power = power;
 		})
+		ipcRenderer.on("update", (event, info) => {
+			this.$message.success(info)
+		})
 	},
 	destroyed() {
 		ipcRenderer.removeAllListeners("card-check")
 		ipcRenderer.removeAllListeners("card-use")
 		ipcRenderer.removeAllListeners("running")
+		ipcRenderer.removeAllListeners("update")
 	}
 }
 </script>

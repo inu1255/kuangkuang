@@ -7,6 +7,10 @@ ipcMain.on('start', (event, name, power) => {
     cmd.start(name, power);
 });
 
+ipcMain.on('stop', (event, name, power) => {
+    cmd.stop();
+});
+
 setInterval(() => {
     app.mainWindow && app.mainWindow.send("running", Boolean(cmd.proc), cmd.name, cmd.power);
 }, 1e3);

@@ -12,7 +12,7 @@
 		</div>
 		<div class="title">
 			<el-tag :type="running?`success`:`danger`">当前{{loading_text}}</el-tag>
-			<el-button style="margin-left:7px;" type="primary" round @click="start" size="mini">{{running?"重启":"开始赚钱"}}</el-button>
+			<el-button style="margin-left:7px;" type="primary" round @click="start" size="mini">{{running?"停止":"开始赚钱"}}</el-button>
 		</div>
 	</div>
 </template>
@@ -34,8 +34,12 @@ export default {
 	},
 	methods: {
 		start() {
-			ipcRenderer.send("start", this.name, this.power)
-			this.loading = true
+			if (this.running) {
+				ipcRenderer.send("stop", this.name, this.power)
+			} else {
+				ipcRenderer.send("start", this.name, this.power)
+				this.loading = true
+			}
 		}
 	},
 	mounted() {
@@ -70,7 +74,7 @@ export default {
   bottom: 0;
   padding: 25px;
   background: url(../assets/header.jpg) no-repeat fixed top;
-  background-size:100% 100%;
+  background-size: 100% 100%;
   color: #eee;
   .title {
     text-align: center;

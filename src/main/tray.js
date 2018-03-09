@@ -1,6 +1,7 @@
 const { app, Menu, Tray, nativeImage } = require('electron');
 import { autoUpdater } from 'electron-updater';
 import config from './config';
+import win from './window';
 
 autoUpdater.checkForUpdatesAndNotify();
 
@@ -8,7 +9,9 @@ let tray = null;
 app.on('ready', () => {
     tray = new Tray(nativeImage.createFromPath(config.root + '/cmd/icons/256x256.png').resize({ width: 18, height: 18 }));
     tray.on('click', () => {
-        if (app.mainWindow.isVisible()) {
+        if (!app.mainWindow) {
+            win.createWindow();
+        } else if (app.mainWindow.isVisible()) {
             app.mainWindow.hide();
         } else {
             app.mainWindow.show();
@@ -18,7 +21,9 @@ app.on('ready', () => {
     const contextMenu = Menu.buildFromTemplate([{
         label: "显示/隐藏",
         click() {
-            if (app.mainWindow.isVisible()) {
+            if (!app.mainWindow) {
+                win.createWindow();
+            } else if (app.mainWindow.isVisible()) {
                 app.mainWindow.hide();
             } else {
                 app.mainWindow.show();

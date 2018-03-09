@@ -16,7 +16,7 @@ function createWindow() {
         center: true,
         resizable: false
     });
-	app.mainWindow.setMenu(null);
+    app.mainWindow.setMenu(null);
     app.mainWindow.loadURL(winURL);
 
     app.mainWindow.on('closed', () => {
@@ -37,3 +37,7 @@ app.on('activate', () => {
         createWindow();
     }
 });
+
+export default {
+    createWindow
+};

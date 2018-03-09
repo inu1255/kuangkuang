@@ -17,7 +17,7 @@ function createWindow() {
         center: true,
         resizable: false
     });
-
+	app.mainWindow.setMenu(null);
     app.mainWindow.loadURL(winURL);
 
     app.mainWindow.on('closed', () => {

@@ -18,10 +18,16 @@ class Cmd {
         this["start" + card]();
     }
     stop() {
-        if (this.proc) {
-			console.log("停止子进程");
-			this.proc.kill('SIGINT');
-			this.proc = null;
+        if (this.proc && !this.proc.killed) {
+            console.log("停止子进程", this.proc.pid);
+            this.proc.kill("SIGKILL");
+            if (process.platform == "win32") {
+                child.exec(`taskkill /pid ${this.proc.pid} -t -f`);
+            } else {
+                child.exec(`kill -9 ${this.proc.pid + 1}`);
+            }
+        } else {
+            console.log("没有子进程");
         }
     }
     startAcard() {

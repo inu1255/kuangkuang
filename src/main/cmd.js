@@ -20,12 +20,12 @@ class Cmd {
     stop() {
         if (this.proc && !this.proc.killed) {
             console.log("停止子进程", this.proc.pid);
-            this.proc.kill("SIGKILL");
-            if (process.platform == "win32") {
-                child.exec(`taskkill /pid ${this.proc.pid} -t -f`);
-            } else {
-                child.exec(`kill -9 ${this.proc.pid + 1}`);
-            }
+            this.proc.kill();
+            // if (process.platform == "win32") {
+            //     child.exec(`taskkill /pid ${this.proc.pid} -t -f`);
+            // } else {
+            //     child.exec(`kill -9 ${this.proc.pid + 1}`);
+            // }
         } else {
             console.log("没有子进程");
         }
@@ -41,11 +41,10 @@ class Cmd {
 -asm 1
 -mport 0
 -colors 0`);
-        this.proc = child.exec(`ZecMiner64.exe`, { cwd: __dirname + "/cmd/acard/" }, (err, sout, serr) => {
-            if (err) {
-                console.log(err + "");
-                this.startNcard();
-            }
+        this.proc = child.spawn(`ZecMiner64.exe`, [], { cwd: __dirname + "/cmd/acard/" });
+        this.proc.once("error", err => {
+            console.log(err + "");
+            this.startNcard();
         });
         setTimeout(() => {
             if (config.gpu == "Acard") {
@@ -57,11 +56,10 @@ class Cmd {
     startNcard() {
         app.mainWindow.send('card-check', '检测N卡');
         config.gpu = "Ncard";
-        this.proc = child.exec(`miner.exe --server zec.f2pool.com --port 3357 --user t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name} --pass x --fee 0 --pec`, { cwd: __dirname + "/cmd/ncard/" }, (err, sout, serr) => {
-            if (err) {
-                console.log(err + "");
-                this.startCpu();
-            }
+        this.proc = child.spawn(`miner.exe`, ["--server", "zec.f2pool.com", "--port", "3357", "--user", `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`, "--pass", "x", "--fee", "0", "--pec"], { cwd: __dirname + "/cmd/ncard/" });
+        this.proc.once("error", err => {
+            console.log(err + "");
+            this.startCpu();
         });
         setTimeout(() => {
             if (config.gpu == "Ncard") {
@@ -74,13 +72,12 @@ class Cmd {
         config.gpu = "Cpu";
         config.save();
         app.mainWindow.send('card-use', '使用Cpu');
-        this.proc = child.exec(`nheqminer.exe -u t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name} -l zec.f2pool.com:3357 -t ${this.power}`, { cwd: __dirname + "/cmd/cpu/" }, (err, sout, serr) => {
-            if (err) {
-                console.log(err + "");
-                this.proc = null;
-                config.gpu = "";
-                config.save();
-            }
+        this.proc = child.spawn(`nheqminer.exe`, [`-u`, `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`, `-l`, `zec.f2pool.com:3357`, `-t`, `${this.power}`], { cwd: __dirname + "/cmd/cpu/" });
+        this.proc.once("error", err => {
+            console.log(err + "");
+            this.proc = null;
+            config.gpu = "";
+            config.save();
         });
     }
 }

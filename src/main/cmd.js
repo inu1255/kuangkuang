@@ -19,7 +19,7 @@ class Cmd {
     }
     stop() {
         if (this.proc) {
-            this.proc.kill();
+            this.proc.kill('SIGINT');
         }
     }
     startAcard() {

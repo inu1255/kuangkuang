@@ -19,7 +19,9 @@ class Cmd {
     }
     stop() {
         if (this.proc) {
-            this.proc.kill('SIGINT');
+			console.log("停止子进程");
+			this.proc.kill('SIGINT');
+			this.proc = null;
         }
     }
     startAcard() {

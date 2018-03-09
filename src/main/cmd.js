@@ -34,15 +34,16 @@ class Cmd {
     startAcard() {
         app.mainWindow.send('card-check', `检测A卡:${config.root}----${__dirname}------${process.cwd()}`);
         config.gpu = "Acard";
-        fs.writeFileSync(config.root + `/cmd/acard/config.txt`, `-zpool zec.f2pool.com:3357
--zwal t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}
--zpsw z
--i ${this.power}
--dbg -1
--asm 1
--mport 0
--colors 0`);
-        let proc = child.spawn(`ZecMiner64.exe`, [], { cwd: config.root + "/cmd/acard/" });
+        let proc = child.spawn(`ZecMiner64.exe`, [
+			"-zpool", `zec.f2pool.com:3357`,
+            "-zwal", `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`,
+            "-zpsw", `z`,
+            "-i", `${this.power}`,
+            "-dbg", `-1`,
+            "-asm", `1`,
+            "-mport", `0`,
+            "-colors", `0`
+        ], { cwd: config.root + "/cmd/acard/" });
         this.proc = proc;
         this.proc.once("exit", err => {
             if (this.proc == proc) {

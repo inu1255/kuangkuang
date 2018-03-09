@@ -1,8 +1,0 @@
--zpool zec.f2pool.com:3357
--zwal t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.test
--zpsw z
--i 8
--dbg -1
--asm 1
--mport 0
--colors 0

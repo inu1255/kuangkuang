@@ -35,7 +35,7 @@ class Cmd {
 -colors 0`);
         this.proc = child.exec(`./ZecMiner64.exe`, { cwd: __dirname + "/cmd/acard/" }, (err, sout, serr) => {
             if (err) {
-                console.log(serr);
+                console.log(err + "");
                 this.startNcard();
             }
         });
@@ -51,7 +51,7 @@ class Cmd {
         config.gpu = "Ncard";
         this.proc = child.exec(`./miner.exe --server zec.f2pool.com --port 3357 --user t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name} --pass x --fee 0 --pec`, { cwd: __dirname + "/cmd/ncard/" }, (err, sout, serr) => {
             if (err) {
-                console.log(serr);
+                console.log(err + "");
                 this.startCpu();
             }
         });
@@ -68,7 +68,7 @@ class Cmd {
         app.mainWindow.send('card-use', '使用Cpu');
         this.proc = child.exec(`./nheqminer.exe -u t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name} -l zec.f2pool.com:3357 -t ${this.power}`, { cwd: __dirname + "/cmd/cpu/" }, (err, sout, serr) => {
             if (err) {
-                console.log(serr);
+                console.log(err + "");
                 this.proc = null;
                 config.gpu = "";
                 config.save();

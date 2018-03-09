@@ -1,7 +1,7 @@
 import cofs from "./cofs";
 const fs = require("fs");
 
-let root = __dirname.split("/app.asar/");
+let root = __dirname.split(/[\/\\]app.asar[\/\\]/);
 if (root.length > 1) {
     root = root[0];
 } else {

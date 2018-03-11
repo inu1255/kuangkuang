@@ -174,7 +174,7 @@ class Cmd {
                 this.send('card-use', `${card.name}`);
                 config.save();
             }
-        }, 3e3);
+        }, 5e3);
     }
     send(type, msg) {
         app.mainWindow && app.mainWindow.send(type, msg);

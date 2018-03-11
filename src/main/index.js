@@ -5,15 +5,26 @@ import cmd from './cmd';
 
 //监听web page里发出的message
 ipcMain.on('start', (event, name, power) => {
-	console.log("开始");
+    console.log("开始");
     cmd.start(name, power);
 });
 
 ipcMain.on('stop', (event, name, power) => {
-	console.log("停止");
+    console.log("停止");
     cmd.stop();
 });
 
+ipcMain.on('refresh', (event, name, power) => {
+    console.log("刷新");
+    cmd.info();
+});
+
 setInterval(() => {
-    app.mainWindow && app.mainWindow.send("running", Boolean(cmd.proc&&!cmd.proc.killed), cmd.name, cmd.power);
+    app.mainWindow && app.mainWindow.send("set", {
+        running: Boolean(cmd.proc && !cmd.proc.killed)
+    });
 }, 1e3);
+
+app.on("ready", function() {
+	cmd.init();
+});

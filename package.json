@@ -1,6 +1,6 @@
 {
   "name": "kuangkuang",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "author": "inu1255 <929909260@qq.com>",
   "description": "挖钱宝",
   "license": null,
@@ -24,11 +24,13 @@
     },
     "files": [
       "dist/electron/**/*"
-	],
-	"extraResources": [
-		"cmd/**/*"
-	],
-	"publish": [ "github" ],
+    ],
+    "extraResources": [
+      "cmd/**/*"
+    ],
+    "publish": [
+      "github"
+    ],
     "dmg": {
       "contents": [
         {
@@ -60,6 +62,7 @@
     "element-ui": "^2.2.1",
     "less": "^3.0.1",
     "less-loader": "^4.0.6",
+    "node-fetch": "^2.1.1",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vue-router": "^2.5.3",

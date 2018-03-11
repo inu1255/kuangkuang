@@ -3,9 +3,12 @@ import { autoUpdater } from 'electron-updater';
 import config from './config';
 import win from './window';
 
-autoUpdater.checkForUpdatesAndNotify();
-
 let tray = null;
+
+app.on("ready", function() {
+    autoUpdater.checkForUpdatesAndNotify();
+});
+
 app.on('ready', () => {
     tray = new Tray(nativeImage.createFromPath(config.root + '/cmd/icons/256x256.png').resize({ width: 18, height: 18 }));
     tray.on('click', () => {

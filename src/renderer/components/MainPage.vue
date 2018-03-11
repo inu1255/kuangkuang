@@ -1,7 +1,16 @@
 <template>
-	<div class="main" v-loading="loading" :element-loading-text="loading_text">
+	<div class="main" v-loading="loading||oneday<0" :element-loading-text="loading_text">
+		<div role="alert" class="el-alert el-alert--success">
+			<div class="el-alert__content">
+				<span class="el-alert__title">24小时预计收益: ￥{{(oneday
+					<=0?1:oneday).toFixed(2)}}</span><br/>
+						<span class="el-alert__title">总收益: ￥{{money.toFixed(2)}}</span><br/>
+						<span class="el-alert__title">已兑现: ￥{{used_money.toFixed(2)}}</span><br/>
+			</div>
+			<el-button style="margin-left:70px;" type="primary" round @click="refresh" size="mini">刷新</el-button>
+		</div>
 		<div class="block">
-			<span class="demonstration">支付宝</span>
+			<span class="demonstration">支付宝收款账户</span>
 			<el-input placeholder="填写支付宝账号以获取佣金" v-model="name" size="small" style="margin-top: 13px;"></el-input>
 		</div>
 		<div class="block">
@@ -11,7 +20,7 @@
 			</div>
 		</div>
 		<div class="title">
-			<el-tag :type="running?`success`:`danger`">当前{{loading_text}}</el-tag>
+			<el-tag :type="running?`success`:`danger`">当前使用{{card}}</el-tag>
 			<el-button style="margin-left:7px;" type="primary" round @click="start" size="mini">{{running?"停止":"开始赚钱"}}</el-button>
 		</div>
 	</div>
@@ -19,6 +28,7 @@
 
 <script>
 const { ipcRenderer } = require('electron')
+import request from '@/utils/request'
 
 export default {
 	data() {
@@ -29,17 +39,26 @@ export default {
 			name: "",
 			power: 8,
 			oname: "",
-			opower: 8
+			opower: 8,
+			oneday: 0,
+			money: 0,
+			used_money: 0,
+			card: "cpu"
 		}
 	},
 	methods: {
-		start() {
+		async start() {
 			if (this.running) {
 				ipcRenderer.send("stop", this.name, this.power)
 			} else {
 				ipcRenderer.send("start", this.name, this.power)
 				this.loading = true
 			}
+		},
+		async refresh() {
+			this.oneday = -1
+			this.loading_text = "正在刷新..."
+			ipcRenderer.send("refresh", this.name, this.power)
 		}
 	},
 	mounted() {
@@ -48,13 +67,11 @@ export default {
 			this.loading_text = arg
 		})
 		ipcRenderer.on("card-use", (event, arg) => {
-			this.loading_text = arg
+			this.card = arg
 			this.loading = false
 		})
-		ipcRenderer.on("running", (event, running, name, power) => {
-			this.running = running
-			if (name != this.oname) this.oname = this.name = name;
-			if (power != this.opower) this.opower = this.power = power;
+		ipcRenderer.on("set", (event, data) => {
+			Object.assign(this, data)
 		})
 		ipcRenderer.on("update", (event, info) => {
 			this.$message.success(info)
@@ -76,7 +93,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 25px;
+  padding: 12px 25px 25px 25px;
   background: url(../assets/header.jpg) no-repeat fixed top;
   background-size: 100% 100%;
   color: #eee;

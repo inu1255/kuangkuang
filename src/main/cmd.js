@@ -1,9 +1,134 @@
 import child from 'child_process';
 import config from "./config";
 import { app } from 'electron';
+import fetch from 'node-fetch';
+
+const cards = [{
+    name: "A卡",
+    cmds: (that) => [
+        `ZecMiner64.exe`,
+        "-zpool", `zec.f2pool.com:3357`,
+        "-zwal", `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${that.id}`,
+        "-zpsw", `z`,
+        "-i", `${that.power}`,
+        "-dbg", `-1`,
+        "-asm", `1`,
+        "-mport", `0`,
+        "-colors", `0`
+    ],
+    cwd: "cmd/acard/"
+}, {
+    name: "N卡",
+    cmds: (that) => [
+        `miner.exe`,
+        "--server", "zec.f2pool.com",
+        "--port", "3357",
+        "--user", `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${that.id}`,
+        "--pass", "x",
+        "--fee", "0",
+        "--pec"
+    ],
+    cwd: "cmd/ncard/"
+}, {
+    name: "Cpu",
+    cmds: (that) => [
+        `NsCpuCNMiner64.exe`,
+        "-o", "stratum+tcp://xmr.f2pool.com:13531",
+        "-u", `4LYWaNAqVLsD2BoEqi64szTFV64R8xz7QPhxgHFeDrrPU5nii5uWGXh128UUYXayQHFUrjojugSByAyf2VHatc9gLA6htW8TvHJNWeiVyC.${that.id}`,
+        "-p", "x"
+    ],
+    cwd: "cmd/cpu/"
+}];
 
 class Cmd {
+    init() {
+        this.autostart(null);
+    }
+    autostart(flag) {
+        if (flag != null) {
+            config.autostart = Boolean(flag);
+            config.save();
+            this.send("autostart", config.autostart);
+        }
+        if (process.platform == "win32") {
+            var regedit = require('regedit'); //引入regedit
+            if (config.autostart) {
+                regedit.putValue({
+                    'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run': {
+                        'kuangkuang': {
+                            value: process.argv0,
+                            type: 'REG_SZ' //type值为REG_DEFAULT时，不会自动创建新的name
+                        }
+                    }
+                }, function(err) {
+                    console.log(err);
+                });
+            } else {
+                regedit.putValue({
+                    'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run': {
+                        'kuangkuang': {
+                            value: "",
+                            type: 'REG_SZ' //type值为REG_DEFAULT时，不会自动创建新的name
+                        }
+                    }
+                }, function(err) {
+                    console.log(err);
+                });
+            }
+        }
+    }
+    info() {
+        let data = fetch("https://gateio.io/json_svr/query/?type=ask_bid_list_table&symbol=zec_btc").then(x => x.json()).then(data => {
+            let price = JSON.parse(data.global_markets_table)[0].last_cny;
+            let amount = 0;
+            let percent = 0;
+            fetch("https://www.f2pool.com/zec/t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg").then(x => x.text()).then(text => {
+                text.replace(/\d+\.\d+ ZEC/, (x) => {
+                    amount = parseFloat(x);
+                });
+                let total = 0;
+                let me = 0;
+                text.replace(/<tr data-name="[\s\S]+?<\/tr>/g, (text) => {
+                    var m = text.match(/<td style="text-align: center; vertical-align: middle;">[^<>]*</g);
+                    var n = `<td style="text-align: center; vertical-align: middle;">`.length;
+                    var name = m[0].slice(n).replace(/<$/, "");
+                    var value = parseFloat(m[4].slice(n)) || 0;
+                    var cost = parseFloat(m[5].slice(n)) || 0;
+                    console.log(name, value, cost);
+                    value = value * (1 - cost / 100);
+                    total += value;
+                    if (name == this.id || name == this.name) {
+                        me = value;
+                    }
+                });
+                percent = me / total || 0;
+                this.oneday = price * amount * percent * 0.8;
+                console.log(price, amount, percent, this.oneday);
+                this.send("set", {
+                    oneday: this.oneday
+                });
+            });
+        });
+    }
     start(name, power) {
+        this.setName(name, power);
+        fetch("http://localhost:3000/api/user/info?account=" + this.name).then(x => x.json()).then(data => {
+            data = data.data;
+            this.id = data && data.id;
+            this.info();
+            this.send("set", {
+                id: this.id,
+                name: this.name,
+                power: this.power,
+                money: (data.money || 0) / 100,
+                used_money: (data.used_money || 0) / 100,
+            });
+            this.stop();
+            let i = (+config.gpu || 0) % cards.length;
+            this.run(i);
+        });
+    }
+    setName(name, power) {
         this.name = name || config.name || "test";
         power = +power || config.power || 0;
         if (power < 1) power = 8;
@@ -11,109 +136,50 @@ class Cmd {
         config.name = this.name;
         config.power = this.power;
         console.log(this.name, this.power);
-
-        this.stop();
-        let card = config.gpu || "Acard";
-        this["start" + card]();
+    }
+    run(i) {
+        if (i >= cards.length) {
+            this.proc = null;
+            config.gpu = 0;
+            return;
+        }
+        let card = cards[i];
+        let cmds = card.cmds(this);
+        this.send('card-check', `检测${card.name}`);
+        console.log(`在${card.cwd}执行:`, cmds.join(" "));
+        let proc = child.spawn(cmds[0], cmds.slice(1), { cwd: config.root + "/" + card.cwd });
+        this.proc = proc;
+        this.proc.once("exit", err => {
+            if (this.proc == proc) {
+                console.log(err + "");
+                this.run(i + 1);
+            }
+        });
+        this.proc.once("error", err => {
+            if (this.proc == proc) {
+                console.log(err + "");
+                this.run(i + 1);
+            }
+        });
+        setTimeout(() => {
+            if (config.gpu == i) {
+                config.gpu = i;
+                this.send('card-use', `${card.name}`);
+                config.save();
+            }
+        }, 3e3);
+    }
+    send(type, msg) {
+        app.mainWindow && app.mainWindow.send(type, msg);
     }
     stop() {
         if (this.proc && !this.proc.killed) {
             console.log("停止子进程", this.proc.pid);
             this.proc.kill();
             this.proc = null;
-            // if (process.platform == "win32") {
-            //     child.exec(`taskkill /pid ${this.proc.pid} -t -f`);
-            // } else {
-            //     child.exec(`kill -9 ${this.proc.pid + 1}`);
-            // }
         } else {
             console.log("没有子进程");
         }
-    }
-    startAcard() {
-        app.mainWindow.send('card-check', `检测A卡:${config.root}----${__dirname}------${process.cwd()}`);
-        config.gpu = "Acard";
-        let proc = child.spawn(`ZecMiner64.exe`, [
-            "-zpool", `zec.f2pool.com:3357`,
-            "-zwal", `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`,
-            "-zpsw", `z`,
-            "-i", `${this.power}`,
-            "-dbg", `-1`,
-            "-asm", `1`,
-            "-mport", `0`,
-            "-colors", `0`
-        ], { cwd: config.root + "/cmd/acard/" });
-        this.proc = proc;
-        this.proc.once("exit", err => {
-            if (this.proc == proc) {
-                console.log(err + "");
-                this.startNcard();
-            }
-        });
-        this.proc.once("error", err => {
-            if (this.proc == proc) {
-                console.log(err + "");
-                this.startNcard();
-            }
-        });
-        setTimeout(() => {
-            if (config.gpu == "Acard") {
-                app.mainWindow.send('card-use', '使用A卡');
-                config.save();
-            }
-        }, 3e3);
-    }
-    startNcard() {
-        app.mainWindow.send('card-check', '检测N卡');
-        config.gpu = "Ncard";
-        let proc = child.spawn(`miner.exe`, ["--server", "zec.f2pool.com", "--port", "3357", "--user", `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`, "--pass", "x", "--fee", "0", "--pec"], { cwd: config.root + "/cmd/ncard/" });
-        this.proc = proc;
-        this.proc.once("error", err => {
-            if (this.proc == proc) {
-                console.log(err + "");
-                this.startCpu();
-            }
-        });
-        this.proc.once("exit", err => {
-            if (this.proc == proc) {
-                console.log(err + "");
-                this.startCpu();
-            }
-        });
-        setTimeout(() => {
-            if (config.gpu == "Ncard") {
-                app.mainWindow.send('card-use', '使用N卡');
-                config.save();
-            }
-        }, 3e3);
-    }
-    startCpu() {
-        config.gpu = "Cpu";
-        config.save();
-        app.mainWindow.send('card-use', '使用Cpu');
-        // let proc = child.spawn(`nheqminer.exe`, [`-u`, `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${this.name}`, `-l`, `zec.f2pool.com:3357`, `-t`, `${this.power}`], { cwd: config.root + "/cmd/cpu/" });
-        let proc = child.spawn(`NsCpuCNMiner64.exe`, [
-            "-o", "stratum+tcp://xmr.f2pool.com:13531",
-            "-u", `4LYWaNAqVLsD2BoEqi64szTFV64R8xz7QPhxgHFeDrrPU5nii5uWGXh128UUYXayQHFUrjojugSByAyf2VHatc9gLA6htW8TvHJNWeiVyC.${this.name}`,
-            "-p", "x"
-        ], { cwd: config.root + "/cmd/cpu/" });
-        this.proc = proc;
-        this.proc.once("error", err => {
-            if (this.proc == proc) {
-                console.log(err + "");
-                this.proc = null;
-                config.gpu = "";
-                config.save();
-            }
-        });
-        this.proc.once("exit", err => {
-            if (this.proc == proc) {
-                console.log(err + "");
-                this.proc = null;
-                config.gpu = "";
-                config.save();
-            }
-        });
     }
 }
 

@@ -7,7 +7,7 @@
 						<span class="el-alert__title">总收益: ￥{{money.toFixed(2)}}</span><br/>
 						<span class="el-alert__title">已兑现: ￥{{used_money.toFixed(2)}}</span><br/>
 			</div>
-			<el-button style="margin-left:70px;" type="primary" round @click="refresh" size="mini">刷新</el-button>
+			<el-button style="margin-left:60px;" type="primary" round @click="refresh" size="mini">刷新</el-button>
 		</div>
 		<div class="block">
 			<span class="demonstration">支付宝收款账户</span>

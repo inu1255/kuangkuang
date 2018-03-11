@@ -19,6 +19,11 @@ ipcMain.on('refresh', (event, name, power) => {
     cmd.info();
 });
 
+ipcMain.on('autostart', (event, flag) => {
+    console.log("自启动");
+    cmd.autostart(flag);
+});
+
 setInterval(() => {
     app.mainWindow && app.mainWindow.send("set", {
         running: Boolean(cmd.proc && !cmd.proc.killed)
@@ -26,5 +31,5 @@ setInterval(() => {
 }, 1e3);
 
 app.on("ready", function() {
-	cmd.init();
+    cmd.init();
 });

@@ -23,6 +23,7 @@
 			<el-tag :type="running?`success`:`danger`">当前使用{{card}}</el-tag>
 			<el-button style="margin-left:7px;" type="primary" round @click="start" size="mini">{{running?"停止":"开始赚钱"}}</el-button>
 		</div>
+		<el-checkbox v-model="autostart">开机启动</el-checkbox>
 	</div>
 </template>
 
@@ -43,7 +44,8 @@ export default {
 			oneday: 0,
 			money: 0,
 			used_money: 0,
-			card: "cpu"
+			card: "cpu",
+			autostart: false,
 		}
 	},
 	methods: {
@@ -61,6 +63,11 @@ export default {
 			ipcRenderer.send("refresh", this.name, this.power)
 		}
 	},
+	watch: {
+		autostart(v) {
+			ipcRenderer.send("autostart", v)
+		}
+	},
 	mounted() {
 		this.start()
 		ipcRenderer.on("card-check", (event, arg) => {
@@ -71,7 +78,11 @@ export default {
 			this.loading = false
 		})
 		ipcRenderer.on("set", (event, data) => {
-			Object.assign(this, data)
+			for (let k in data) {
+				let v = data[k]
+				console.log("set", k, v)
+				this[k] = v
+			}
 		})
 		ipcRenderer.on("update", (event, info) => {
 			this.$message.success(info)

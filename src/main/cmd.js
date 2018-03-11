@@ -42,14 +42,14 @@ const cards = [{
 
 class Cmd {
     init() {
-        this.autostart(null);
     }
     autostart(flag) {
         if (flag != null) {
             config.autostart = Boolean(flag);
             config.save();
-            this.send("autostart", config.autostart);
         }
+        console.log("autostart", config.autostart);
+        this.send("set", { autostart: config.autostart });
         if (process.platform == "win32") {
             var regedit = require('regedit'); //引入regedit
             if (config.autostart) {
@@ -78,7 +78,7 @@ class Cmd {
         }
     }
     info() {
-        let data = fetch("https://gateio.io/json_svr/query/?type=ask_bid_list_table&symbol=zec_btc").then(x => x.json()).then(data => {
+        fetch("https://gateio.io/json_svr/query/?type=ask_bid_list_table&symbol=zec_btc").then(x => x.json()).then(data => {
             let price = JSON.parse(data.global_markets_table)[0].last_cny;
             let amount = 0;
             let percent = 0;
@@ -111,7 +111,8 @@ class Cmd {
         });
     }
     start(name, power) {
-        this.setName(name, power);
+		this.setName(name, power);
+		this.autostart(null);
         fetch("http://ts.inu1255.cn:3001/api/user/info?account=" + this.name).then(x => x.json()).then(data => {
             data = data.data;
             this.id = data && data.id;

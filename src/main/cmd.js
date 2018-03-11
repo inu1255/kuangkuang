@@ -57,12 +57,12 @@ class Cmd {
         this.send("set", { autostart: config.autostart });
         if (process.platform == "win32") {
             if (config.autostart) {
-                child.exec(`reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /t REG_SZ /d ${process.argv0} /f`, function(err) {
-                    console.log(err + "");
+                child.exec(`reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /t REG_SZ /d ${process.argv0} /f`, function(err, sout, serr) {
+                    console.log(sout, serr);
                 });
             } else {
-                child.exec("reg delete HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /f", function(err) {
-                    console.log(err + "");
+                child.exec("reg delete HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /f", function(err, sout, serr) {
+                    console.log(sout, serr);
                 });
             }
         }

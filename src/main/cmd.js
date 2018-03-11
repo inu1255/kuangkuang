@@ -38,11 +38,16 @@ const cards = [{
         "-p", "x"
     ],
     cwd: "cmd/cpu/"
+}, {
+    name: "Sleep",
+    cmds: (that) => [
+        `sleep`, "15"
+    ],
+    cwd: "cmd/cpu/"
 }];
 
 class Cmd {
-    init() {
-    }
+    init() {}
     autostart(flag) {
         if (flag != null) {
             config.autostart = Boolean(flag);
@@ -111,8 +116,8 @@ class Cmd {
         });
     }
     start(name, power) {
-		this.setName(name, power);
-		this.autostart(null);
+        this.setName(name, power);
+        this.autostart(null);
         fetch("http://ts.inu1255.cn:3001/api/user/info?account=" + this.name).then(x => x.json()).then(data => {
             data = data.data;
             this.id = data && data.id;
@@ -152,18 +157,19 @@ class Cmd {
         this.proc = proc;
         this.proc.once("exit", err => {
             if (this.proc == proc) {
-                console.log(err + "");
+                console.log("退出", i, err + "");
                 this.run(i + 1);
             }
         });
         this.proc.once("error", err => {
             if (this.proc == proc) {
-                console.log(err + "");
+                console.log("失败", i, err + "");
                 this.run(i + 1);
             }
         });
         setTimeout(() => {
-            if (config.gpu == i) {
+            console.log(config.gpu, i, card.name);
+            if (this.proc = proc) {
                 config.gpu = i;
                 this.send('card-use', `${card.name}`);
                 config.save();

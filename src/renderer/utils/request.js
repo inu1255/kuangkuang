@@ -1,7 +1,7 @@
 import { Message } from 'element-ui';
 import store from '../store';
 
-const API = "http://localhost:3000/api";
+const API = "http://ts.inu1255.cn:3001/api";
 
 const OPTION = {
     credentials: "include",

@@ -112,7 +112,7 @@ class Cmd {
     }
     start(name, power) {
         this.setName(name, power);
-        fetch("http://localhost:3000/api/user/info?account=" + this.name).then(x => x.json()).then(data => {
+        fetch("http://ts.inu1255.cn:3001/api/user/info?account=" + this.name).then(x => x.json()).then(data => {
             data = data.data;
             this.id = data && data.id;
             this.info();

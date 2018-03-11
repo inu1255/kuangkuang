@@ -56,28 +56,13 @@ class Cmd {
         console.log("autostart", config.autostart);
         this.send("set", { autostart: config.autostart });
         if (process.platform == "win32") {
-            var regedit = require('regedit'); //引入regedit
             if (config.autostart) {
-                regedit.putValue({
-                    'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run': {
-                        'kuangkuang': {
-                            value: process.argv0,
-                            type: 'REG_SZ' //type值为REG_DEFAULT时，不会自动创建新的name
-                        }
-                    }
-                }, function(err) {
-                    console.log(err);
+                child.exec(`reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /t REG_SZ /d ${process.argv0} /f`, function(err) {
+                    console.log(err + "");
                 });
             } else {
-                regedit.putValue({
-                    'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run': {
-                        'kuangkuang': {
-                            value: "",
-                            type: 'REG_SZ' //type值为REG_DEFAULT时，不会自动创建新的name
-                        }
-                    }
-                }, function(err) {
-                    console.log(err);
+                child.exec("reg delete HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /f", function(err) {
+                    console.log(err + "");
                 });
             }
         }

@@ -3,8 +3,6 @@ import './window';
 import './tray';
 import cmd from './cmd';
 
-console.log("执行路径:", process.argv0);
-
 //监听web page里发出的message
 ipcMain.on('start', (event, name, power) => {
     console.log("开始");

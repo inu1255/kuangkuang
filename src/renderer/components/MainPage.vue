@@ -1,7 +1,7 @@
 <template>
 	<div class="main" style="-webkit-app-region: drag" v-loading="loading||oneday<0" :element-loading-text="loading_text">
 		<div class="header">
-			<el-button class="el-icon-error" type="text" @click="hide"></el-button>
+			<div class="el-icon-error" @click="hide">关闭</div>
 		</div>
 		<div style="-webkit-app-region: no-drag" role="alert" class="el-alert el-alert--success">
 			<div class="el-alert__content">
@@ -132,12 +132,11 @@ export default {
 	z-index: 9999;
 	top: 0;
 	right: 0;
+	margin-top: 0;
     .el-icon-error {
-      margin-top: -17px;
-      margin-right: -7px;
-      float: right;
       cursor: pointer;
-      padding: 12px;
+      float: right;
+      padding: 3px;
     }
   }
   .footer {

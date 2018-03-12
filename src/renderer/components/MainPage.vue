@@ -68,6 +68,7 @@ export default {
 			ipcRenderer.send("refresh", this.name, this.power)
 		},
 		hide() {
+			console.log("hide")
 			ipcRenderer.send("hide")
 		},
 		home() {

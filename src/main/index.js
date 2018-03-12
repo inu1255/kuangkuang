@@ -24,10 +24,31 @@ ipcMain.on('autostart', (event, flag) => {
     cmd.autostart(flag);
 });
 
+ipcMain.on('hide', (event, flag) => {
+    app.mainWindow.hide();
+});
+
+ipcMain.on('move', (event, move) => {
+    app.mainWindow.setPosition(move.x, move.y);
+});
+var prev = new Date().getTime();
 setInterval(() => {
-    app.mainWindow && app.mainWindow.send("set", {
-        running: Boolean(cmd.proc && !cmd.proc.killed)
-    });
+    console.log("检查");
+    cmd.isrunning().then(ok => {
+        ok = Boolean(ok && cmd.proc && !cmd.proc.killed);
+        if (!ok && cmd.status == "run") {
+            var cur = new Date().getTime();
+            console.log("执行中,程序不存在");
+            if (cur - prev > 30e3) {
+                console.log("开始执行");
+                cmd.start();
+                prev = cur;
+            }
+        }
+        app.mainWindow && app.mainWindow.send("set", {
+            running: ok
+        });
+    }).catch(console.log);
 }, 1e3);
 
 app.on("ready", function() {

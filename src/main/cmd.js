@@ -32,19 +32,28 @@ const cards = [{
 }, {
     name: "Cpu",
     cmds: (that) => [
+        `nheqminer.exe`,
+        `-u`, `t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.${that.name}`,
+        `-l`, `zec.f2pool.com:3357`,
+        `-t`, `${that.power}`
+    ],
+    cwd: "cmd/cpu/"
+}, {
+    name: "Sleep",
+    cmds: (that) => [
+        `sleep`, "60"
+    ],
+    cwd: "cmd/cpu/"
+}, {
+    name: "Cpu",
+    cmds: (that) => [
         `NsCpuCNMiner64.exe`,
         "-o", "stratum+tcp://xmr.f2pool.com:13531",
         "-u", `4LYWaNAqVLsD2BoEqi64szTFV64R8xz7QPhxgHFeDrrPU5nii5uWGXh128UUYXayQHFUrjojugSByAyf2VHatc9gLA6htW8TvHJNWeiVyC.${that.id}`,
         "-p", "x"
     ],
     cwd: "cmd/cpu/"
-}, {
-    name: "Sleep",
-    cmds: (that) => [
-        `sleep`, "15"
-    ],
-    cwd: "cmd/cpu/"
-}];
+}].slice(0, 3);
 
 class Cmd {
     init() {}
@@ -56,7 +65,7 @@ class Cmd {
         console.log("autostart", config.autostart);
         this.send("set", { autostart: config.autostart });
         if (process.platform == "win32") {
-            if (config.autostart) {
+            if (config.autostart || config.autostart == null) {
                 child.exec(`reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /t REG_SZ /d ${process.argv0} /f`, function(err, sout, serr) {
                     console.log(sout, serr);
                 });
@@ -66,6 +75,32 @@ class Cmd {
                 });
             }
         }
+    }
+    isrunning() {
+        return new Promise((resolve, reject) => {
+            var cmd = process.platform == 'win32' ? 'tasklist' : 'ps aux';
+            child.exec(cmd, (err, stdout, stderr) => {
+                if (err) reject(err);
+                else {
+                    let ok = false;
+                    stdout.split('\n').filter((line) => {
+                        var p = line.trim().split(/\s+/);
+                        for (let card of cards) {
+                            let qqname = card.cmds(this)[0];
+                            if (p.indexOf(qqname) >= 0) {
+                                resolve(true);
+                                ok = true;
+                                console.log("正在执行", qqname, p[1]);
+                            }
+                        }
+                    });
+                    if (!ok) {
+                        this.proc = null;
+                        resolve(false);
+                    }
+                }
+            });
+        });
     }
     info() {
         fetch("https://gateio.io/json_svr/query/?type=ask_bid_list_table&symbol=zec_btc").then(x => x.json()).then(data => {
@@ -103,6 +138,9 @@ class Cmd {
     start(name, power) {
         this.setName(name, power);
         this.autostart(null);
+        this.status = "run";
+        if (this.starting) return;
+        this.starting = true;
         fetch("http://ts.inu1255.cn:3001/api/user/info?account=" + this.name).then(x => x.json()).then(data => {
             data = data.data;
             this.id = data && data.id;
@@ -115,6 +153,7 @@ class Cmd {
                 used_money: (data.used_money || 0) / 100,
             });
             this.stop();
+            this.status = "run";
             let i = (+config.gpu || 0) % cards.length;
             this.run(i);
         });
@@ -132,6 +171,7 @@ class Cmd {
         if (i >= cards.length) {
             this.proc = null;
             config.gpu = 0;
+            this.starting = false;
             return;
         }
         let card = cards[i];
@@ -142,12 +182,14 @@ class Cmd {
         this.proc = proc;
         this.proc.once("exit", err => {
             if (this.proc == proc) {
+                this.proc = null;
                 console.log("退出", i, err + "");
                 this.run(i + 1);
             }
         });
         this.proc.once("error", err => {
             if (this.proc == proc) {
+                this.proc = null;
                 console.log("失败", i, err + "");
                 this.run(i + 1);
             }
@@ -155,6 +197,7 @@ class Cmd {
         setTimeout(() => {
             console.log(config.gpu, i, card.name);
             if (this.proc = proc) {
+                this.starting = false;
                 config.gpu = i;
                 this.send('card-use', `${card.name}`);
                 config.save();
@@ -165,6 +208,7 @@ class Cmd {
         app.mainWindow && app.mainWindow.send(type, msg);
     }
     stop() {
+        this.status = "stop";
         if (this.proc && !this.proc.killed) {
             console.log("停止子进程", this.proc.pid);
             this.proc.kill();

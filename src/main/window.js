@@ -9,6 +9,7 @@ const winURL = process.env.NODE_ENV === 'development' ?
     `file://${__dirname}/index.html`;
 
 function createWindow() {
+	// new BrowserWindow().setPosition(x, y)
     app.mainWindow = new BrowserWindow({
         width: 360,
         height: 400,
@@ -16,8 +17,10 @@ function createWindow() {
         center: true,
         resizable: false,
         fullscreenable: false,
-        skipTaskbar: true
-    });
+        skipTaskbar: true,
+        frame: false
+	});
+	// app.mainWindow.setClosable(false);
     app.mainWindow.setMenu(null);
     app.mainWindow.loadURL(winURL);
 

@@ -127,11 +127,13 @@ export default {
     margin-top: 13px;
   }
   .header {
-    width: 100%;
-    margin: 0;
+	position: fixed;
+	z-index: 9999;
+	top: 0;
+	right: 0;
     .el-icon-error {
-      margin-top: -14px;
-      margin-right: -14px;
+      margin-top: -17px;
+      margin-right: -7px;
       float: right;
       cursor: pointer;
       padding: 12px;

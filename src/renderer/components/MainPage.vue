@@ -1,7 +1,7 @@
 <template>
 	<div class="main" style="-webkit-app-region: drag" v-loading="loading||oneday<0" :element-loading-text="loading_text">
 		<div class="header">
-			<div class="el-icon-error" @click="hide"></div>
+			<el-button class="el-icon-error" type="text" @click="hide"></el-button>
 		</div>
 		<div style="-webkit-app-region: no-drag" role="alert" class="el-alert el-alert--success">
 			<div class="el-alert__content">

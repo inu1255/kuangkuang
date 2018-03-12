@@ -128,7 +128,7 @@ export default {
     margin-top: 13px;
   }
   .header {
-	position: fixed;
+	position: absolute;
 	z-index: 9999;
 	top: 0;
 	right: 0;

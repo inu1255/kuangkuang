@@ -26,11 +26,14 @@
 			<el-button style="margin-left:7px;" type="primary" round @click="start" size="mini">{{running?"停止":"开始赚钱"}}</el-button>
 		</div>
 		<el-checkbox style="-webkit-app-region: no-drag" v-model="autostart">开机启动</el-checkbox>
+		<div style="-webkit-app-region: no-drag" class="footer">
+			<a @click="home">官方网站: wqbao.in</a>
+		</div>
 	</div>
 </template>
 
 <script>
-const { ipcRenderer } = require('electron')
+const { ipcRenderer, shell } = require('electron')
 import request from '@/utils/request'
 
 export default {
@@ -66,6 +69,9 @@ export default {
 		},
 		hide() {
 			ipcRenderer.send("hide")
+		},
+		home() {
+			shell.openExternal('http://wqbao.in')
 		}
 	},
 	watch: {
@@ -121,15 +127,18 @@ export default {
     margin-top: 13px;
   }
   .header {
-    position: absolute;
-    top: -20px;
-    right: 0px;
-    overflow: hidden;
     width: 100%;
+    margin: 0;
+    .el-icon-error {
+      margin-top: -14px;
+      margin-right: -14px;
+      float: right;
+      cursor: pointer;
+      padding: 12px;
+    }
   }
-  .el-icon-error {
-    float: right;
-    padding: 14px;
+  .footer {
+    text-align: center;
     cursor: pointer;
   }
 }

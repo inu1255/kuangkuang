@@ -1,7 +1,7 @@
 <template>
 	<div class="main" style="-webkit-app-region: drag" v-loading="loading||oneday<0" :element-loading-text="loading_text">
 		<div class="header">
-			<div class="el-icon-error" @click="hide">关闭</div>
+			<div style="-webkit-app-region: no-drag" class="el-icon-error" @click="hide"></div>
 		</div>
 		<div style="-webkit-app-region: no-drag" role="alert" class="el-alert el-alert--success">
 			<div class="el-alert__content">
@@ -128,7 +128,7 @@ export default {
     margin-top: 13px;
   }
   .header {
-	position: absolute;
+	position: fixed;
 	z-index: 9999;
 	top: 0;
 	right: 0;

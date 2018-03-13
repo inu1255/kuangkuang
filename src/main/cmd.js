@@ -126,7 +126,7 @@ class Cmd {
             Promise.all(miners.map(x => x.isrunning())).then(data => {
                 let what = {};
                 for (let i = 0; i < data.length; i++) {
-                    what[keys[i]] = data[i];
+                    what[keys[i]] = data[i] && miners[i].proc;
                 }
                 resolve(what);
             }).catch(reject);

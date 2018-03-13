@@ -16,7 +16,7 @@ class Cmd {
         this.miners.set("c", new CMiner());
     }
     init() {
-
+		this.autostart(null);
     }
     autostart(flag) {
         if (flag != null) {
@@ -65,13 +65,14 @@ class Cmd {
             what = config.what = ["a", "n", "c"];
         }
         this.setName(name, power).then(id => {
-			console.log("----what", config.what);
+            console.log("----what", config.what);
             for (let kv of this.miners) {
                 let k = kv[0];
                 let miner = kv[1];
                 if (what.indexOf(k) < 0) {
                     miner.stop();
                 } else {
+                    console.log("----start", miner.cmds[0]);
                     miner.start(id, name, power);
                 }
             }
@@ -104,10 +105,10 @@ class Cmd {
                 // console.log(what);
                 let oneday = Object.values(what).reduce((a, b) => {
                     // console.log(a, b, b.reduce((a, b) => a + b, 0));
-					b = b.filter(x => x > 0);
-					if (b.length>0) 
-						return a + b.reduce((a, b) => a + b, 0) / b.length;
-					return a;
+                    b = b.filter(x => x > 0);
+                    if (b.length > 0)
+                        return a + b.reduce((a, b) => a + b, 0) / b.length;
+                    return a;
                 }, 0);
                 this.send("set", { oneday });
                 resolve(oneday);

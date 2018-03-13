@@ -126,7 +126,6 @@ export default {
 		}
 	},
 	mounted() {
-		ipcRenderer.send("config")
 		ipcRenderer.on("config", (event, config) => {
 			this.config = config
 			this.name = config.name
@@ -137,6 +136,7 @@ export default {
 			}
 			this.start()
 		})
+		ipcRenderer.send("config")
 		ipcRenderer.on("card-check", (event, arg) => {
 			this.loading_text = arg
 		})

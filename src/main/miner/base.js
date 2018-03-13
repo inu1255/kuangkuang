@@ -25,10 +25,10 @@ class Miner {
         this.id = id;
         this.name = name;
         this.power = power;
-        this.retry = 10;
         if (restart) {
             this.stop();
         }
+        this.retry = 10;
         this.run();
     }
     run() {
@@ -49,7 +49,7 @@ class Miner {
     }
     stop() {
         this.retry = 0;
-        if (this.proc && !this.proc.killed) {
+        if (this.proc) {
             this.log("停止子进程", this.proc.pid);
             this.proc.kill();
         } else {
@@ -71,7 +71,6 @@ class Miner {
                         }
                     });
                     if (!ok) {
-                        this.proc = null;
                         resolve(false);
                     }
                 }

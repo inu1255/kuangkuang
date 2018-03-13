@@ -2,11 +2,16 @@ import { app, ipcMain } from 'electron';
 import './window';
 import './tray';
 import cmd from './cmd';
+import config from "./config";
+
+function send(type, msg) {
+    app.mainWindow && app.mainWindow.send(type, msg);
+}
 
 //监听web page里发出的message
-ipcMain.on('start', (event, name, power) => {
+ipcMain.on('start', (event, name, power, what) => {
     console.log("开始");
-    cmd.start(name, power);
+    cmd.start(name, power, what);
 });
 
 ipcMain.on('stop', (event, name, power) => {
@@ -15,7 +20,8 @@ ipcMain.on('stop', (event, name, power) => {
 });
 
 ipcMain.on('refresh', (event, name, power) => {
-    console.log("刷新");
+	console.log("刷新");
+	cmd.setName(name, power);
     cmd.info();
 });
 
@@ -31,24 +37,18 @@ ipcMain.on('hide', (event, flag) => {
 ipcMain.on('move', (event, move) => {
     app.mainWindow.setPosition(move.x, move.y);
 });
-var prev = new Date().getTime();
+
+ipcMain.on('config', (event, c) => {
+    if (c) {
+        Object.assign(config, c);
+        config.save();
+    }
+    send("config", config);
+});
+
 setInterval(() => {
     console.log("检查");
-    cmd.isrunning().then(ok => {
-        ok = Boolean(ok && cmd.proc && !cmd.proc.killed);
-        if (!ok && cmd.status == "run") {
-            var cur = new Date().getTime();
-            console.log("执行中,程序不存在");
-            if (cur - prev > 30e3) {
-                console.log("开始执行");
-                cmd.start();
-                prev = cur;
-            }
-        }
-        app.mainWindow && app.mainWindow.send("set", {
-            running: ok
-        });
-    }).catch(console.log);
+    cmd.check().then(running => send("set", { running }));
 }, 1e3);
 
 app.on("ready", function() {

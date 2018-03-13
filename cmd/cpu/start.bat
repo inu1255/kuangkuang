@@ -1,1 +1,1 @@
-nheqminer.exe -l zec.f2pool.com:3357 -u t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg.inu
+cpuminer-avx2 -a lyra2z -o stratum+tcp://xzc.f2pool.com:5740 --cpu-priority 5 -u aMcwhRHAFZzovpcjaTKmoyUdURJLfbvk97.001 -p password

@@ -10,8 +10,8 @@ class Miner {
      */
     constructor(cmds, cwd) {
         this.cmds = cmds;
-		this.cwd = cwd;
-		this.type = this.type || "";
+        this.cwd = cwd;
+        this.type = this.type || "";
     }
     send(type, msg) {
         app.mainWindow && app.mainWindow.send(type, msg);
@@ -34,16 +34,21 @@ class Miner {
     run() {
         if (this.retry > 0 && !this.proc) {
             let cmds = this.cmds.map(x => x.replace("$NAME", this.id).replace("$POWER", this.power));
-            this.proc = child.spawn(cmds[0], cmds.slice(1), { cwd: config.root + "/" + this.cwd });
+            let proc = child.spawn(cmds[0], cmds.slice(1), { cwd: config.root + "/" + this.cwd });
+            this.proc = proc;
             this.proc.once("exit", err => {
-                this.log(err);
-                this.proc = null;
-                this.retry--;
+                if (proc == this.proc) {
+                    this.log(err);
+                    this.proc = null;
+                    this.retry--;
+                }
             });
             this.proc.once("error", err => {
-                this.log(err);
-                this.proc = null;
-                this.retry--;
+                if (proc == this.proc) {
+                    this.log(err);
+                    this.proc = null;
+                    this.retry--;
+                }
             });
         }
     }

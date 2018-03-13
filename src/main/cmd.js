@@ -62,7 +62,7 @@ class Cmd {
     start(name, power, what) {
         what = config.what = what || config.what;
         if (!(what instanceof Array)) {
-            what = config.what = ["a", "n", "c"];
+            what = config.what = ["c"];
         }
         this.setName(name, power).then(id => {
             console.log("----what", config.what);

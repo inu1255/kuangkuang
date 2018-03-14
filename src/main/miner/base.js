@@ -17,8 +17,8 @@ class Miner {
         app.mainWindow && app.mainWindow.send(type, msg);
     }
     log(msg) {
-        this.send("log", this.cmds[0] + ": " + msg);
-        console.log.apply(console, [this.cmds[0] + ": "].concat(Array.from(arguments)));
+        // this.send("log", this.cmds[0] + ": " + msg);
+        // console.log.apply(console, [this.cmds[0] + ": "].concat(Array.from(arguments)));
     }
     start(id, name, power) {
         let restart = this.id != id || this.power != power;

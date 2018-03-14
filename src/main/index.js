@@ -47,7 +47,7 @@ ipcMain.on('config', (event, c) => {
 });
 
 setInterval(() => {
-    console.log("检查");
+    // console.log("检查");
     cmd.check().then(running => send("set", { running }));
 }, 1e3);
 

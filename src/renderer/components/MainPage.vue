@@ -53,8 +53,8 @@ export default {
 			card: "cpu",
 			autostart: true,
 			what: {
-				a: true,
-				n: true,
+				a: false,
+				n: false,
 				c: true,
 			},
 			running: {
@@ -99,7 +99,7 @@ export default {
 			ipcRenderer.send("refresh", this.name, this.power)
 		},
 		hide() {
-			console.log("hide")
+			// console.log("hide")
 			ipcRenderer.send("hide")
 		},
 		home() {
@@ -113,7 +113,7 @@ export default {
 		what: {
 			deep: true,
 			handler(what, old) {
-				console.log(what)
+				// console.log(what)
 			}
 		},
 		running() {
@@ -146,7 +146,7 @@ export default {
 		ipcRenderer.on("set", (event, data) => {
 			for (let k in data) {
 				let v = data[k]
-				console.log("set", k, v)
+				// console.log("set", k, v)
 				this[k] = v
 			}
 		})

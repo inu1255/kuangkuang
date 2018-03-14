@@ -23,16 +23,16 @@ class Cmd {
             config.autostart = Boolean(flag);
             config.save();
         }
-        console.log("autostart", config.autostart);
+        // console.log("autostart", config.autostart);
         this.send("set", { autostart: config.autostart });
         if (process.platform == "win32") {
             if (config.autostart || config.autostart == null) {
                 child.exec(`reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /t REG_SZ /d ${process.argv0} /f`, function(err, sout, serr) {
-                    console.log(sout, serr);
+                    // console.log(sout, serr);
                 });
             } else {
                 child.exec("reg delete HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v kuangkuang /f", function(err, sout, serr) {
-                    console.log(sout, serr);
+                    // console.log(sout, serr);
                 });
             }
         }
@@ -54,7 +54,7 @@ class Cmd {
                     money: (data.money || 0) / 100,
                     used_money: (data.used_money || 0) / 100,
                 });
-                console.log(config.id, config.name, config.power);
+                // console.log(config.id, config.name, config.power);
                 resolve(config.id);
             }).catch(reject);
         });
@@ -65,14 +65,14 @@ class Cmd {
             what = config.what = ["c"];
         }
         this.setName(name, power).then(id => {
-            console.log("----what", config.what);
+            // console.log("----what", config.what);
             for (let kv of this.miners) {
                 let k = kv[0];
                 let miner = kv[1];
                 if (what.indexOf(k) < 0) {
                     miner.stop();
                 } else {
-                    console.log("----start", miner.cmds[0]);
+                    // console.log("----start", miner.cmds[0]);
                     miner.start(id, name, power);
                 }
             }

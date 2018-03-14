@@ -18,7 +18,7 @@ class Miner {
     }
     log(msg) {
         // this.send("log", this.cmds[0] + ": " + msg);
-        // console.log.apply(console, [this.cmds[0] + ": "].concat(Array.from(arguments)));
+        console.log.apply(console, [this.cmds[0] + ": "].concat(Array.from(arguments)));
     }
     start(id, name, power) {
         let restart = this.id != id || this.power != power;
@@ -28,11 +28,14 @@ class Miner {
         if (restart) {
             this.stop();
         }
-        this.retry = 10;
+        this.retry_times = 10;
         this.run();
-    }
+	}
+	retry(){
+
+	}
     run() {
-        if (this.retry > 0 && !this.proc) {
+        if (this.retry_times > 0 && !this.proc) {
             let cmds = this.cmds.map(x => x.replace("$NAME", this.id).replace("$POWER", this.power));
             let proc = child.spawn(cmds[0], cmds.slice(1), { cwd: config.root + "/" + this.cwd });
             this.proc = proc;
@@ -40,20 +43,22 @@ class Miner {
                 if (proc == this.proc) {
                     this.log(err);
                     this.proc = null;
-                    this.retry--;
+					this.retry_times--;
+					this.retry();
                 }
             });
             this.proc.once("error", err => {
                 if (proc == this.proc) {
                     this.log(err);
                     this.proc = null;
-                    this.retry--;
+                    this.retry_times--;
+					this.retry();
                 }
             });
         }
     }
     stop() {
-        this.retry = 0;
+        this.retry_times = 0;
         if (this.proc) {
             this.log("停止子进程", this.proc.pid);
             this.proc.kill();

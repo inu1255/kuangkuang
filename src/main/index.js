@@ -58,7 +58,8 @@ setInterval(() => {
             }
         }
         if (ok) {
-            send("set", { running });
+			send("set", { running });
+			prev = running;
         }
     });
 }, 1e3);

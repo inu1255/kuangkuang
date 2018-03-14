@@ -92,6 +92,12 @@ export default {
 			}
 			ipcRenderer.send("start", this.name, this.power, what)
 			this.loading = new Date().getTime()
+			setTimeout(() => {
+				this.loading = false
+				if (!this.isRun) {
+					this.$message.error("启动失败")
+				}
+			}, 5e3);
 		},
 		async refresh() {
 			this.oneday = -1
@@ -114,14 +120,6 @@ export default {
 			deep: true,
 			handler(what, old) {
 				// console.log(what)
-			}
-		},
-		running() {
-			if (this.loading && new Date().getTime() - this.loading > 5e3) {
-				this.loading = false
-				if (!this.isRun) {
-					this.$message.error("启动失败")
-				}
 			}
 		}
 	},

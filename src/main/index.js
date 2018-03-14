@@ -20,8 +20,8 @@ ipcMain.on('stop', (event, name, power) => {
 });
 
 ipcMain.on('refresh', (event, name, power) => {
-	console.log("刷新");
-	cmd.setName(name, power);
+    console.log("刷新");
+    cmd.setName(name, power);
     cmd.info();
 });
 
@@ -46,9 +46,21 @@ ipcMain.on('config', (event, c) => {
     send("config", config);
 });
 
+var prev = {};
 setInterval(() => {
     // console.log("检查");
-    cmd.check().then(running => send("set", { running }));
+    cmd.check().then(running => {
+        var ok = false;
+        for (let k in running) {
+            if (running[k] != prev[k]) {
+                ok = true;
+                break;
+            }
+        }
+        if (ok) {
+            send("set", { running });
+        }
+    });
 }, 1e3);
 
 app.on("ready", function() {

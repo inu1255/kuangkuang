@@ -2,6 +2,7 @@ import child from 'child_process';
 import config from "../config";
 import { app } from 'electron';
 import fetch from 'node-fetch';
+const fs = require("fs");
 
 class Miner {
     /**
@@ -30,10 +31,10 @@ class Miner {
         }
         this.retry_times = 10;
         this.run();
-	}
-	retry(){
+    }
+    retry() {
 
-	}
+    }
     run() {
         if (this.retry_times > 0 && !this.proc) {
             let cmds = this.cmds.map(x => x.replace("$NAME", this.id).replace("$POWER", this.power));
@@ -43,16 +44,20 @@ class Miner {
                 if (proc == this.proc) {
                     this.log(err);
                     this.proc = null;
-					this.retry_times--;
-					this.retry();
+                    this.retry_times--;
+                    this.retry();
                 }
+            });
+            this.proc.stdout.on("data", data => {
+                this.log(data);
+                this.last_data = new Date().getTime();
             });
             this.proc.once("error", err => {
                 if (proc == this.proc) {
                     this.log(err);
                     this.proc = null;
                     this.retry_times--;
-					this.retry();
+                    this.retry();
                 }
             });
         }
@@ -69,6 +74,10 @@ class Miner {
     }
     isrunning() {
         return new Promise((resolve, reject) => {
+            if (new Date().getTime() - this.last_data > 60e3) {
+                this.log("重启中....");
+                this.run();
+            }
             var cmd = process.platform == 'win32' ? 'tasklist' : 'ps aux';
             child.exec(cmd, (err, stdout, stderr) => {
                 if (err) reject(err);

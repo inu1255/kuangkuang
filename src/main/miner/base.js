@@ -49,7 +49,7 @@ class Miner {
                 }
             });
             this.proc.stdout.on("data", data => {
-                this.log(data);
+                this.log(data.toString());
                 this.last_data = new Date().getTime();
             });
             this.proc.once("error", err => {

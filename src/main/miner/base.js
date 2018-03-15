@@ -116,17 +116,20 @@ class Miner {
                 let amount = 0;
                 let percent = 0;
                 fetch(this.url || "https://www.f2pool.com/zec/t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg").then(x => x.text()).then(text => {
-                    text.replace(/\d+\.\d+ ZEC/, (x) => {
-                        amount = parseFloat(x);
+                    text.replace(/item-value">\d+\.\d+/, (x) => {
+                        amount = parseFloat(x.slice(`item-value">`.length));
                     });
                     let total = 0;
                     let me = 0;
                     text.replace(/<tr data-name="[\s\S]+?<\/tr>/g, (text) => {
-                        var m = text.match(/<td style="text-align: center; vertical-align: middle;">[^<>]*</g);
-                        var n = `<td style="text-align: center; vertical-align: middle;">`.length;
+                        var m = text.match(/<td>[^<>]*</g);
+                        var n = `<td>`.length;
                         var name = m[0].slice(n).replace(/<$/, "");
-                        var value = parseFloat(m[4].slice(n)) || 0;
-                        var cost = parseFloat(m[5].slice(n)) || 0;
+						var value = parseFloat(m[2].slice(n)) || 0;
+                        var cost=0;
+						text.replace(/>(\d+\.\d+)%</,(x,x1)=>{
+							cost = x1;
+						});
                         value = value * (1 - cost / 100);
                         total += value;
                         // this.log(this.name, this.id, name, value);

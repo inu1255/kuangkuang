@@ -48,10 +48,12 @@ class Miner {
                     this.retry();
                 }
             });
-            this.proc.stdout.on("data", data => {
-                this.log(data.toString());
-                this.last_data = new Date().getTime();
-            });
+            if (config.debug) {
+                this.proc.stdout.on("data", data => {
+                    this.log(data.toString());
+                    this.last_data = new Date().getTime();
+                });
+            }
             this.proc.once("error", err => {
                 if (proc == this.proc) {
                     this.log(err);
@@ -74,7 +76,7 @@ class Miner {
     }
     isrunning() {
         return new Promise((resolve, reject) => {
-            if (new Date().getTime() - this.last_data > 60e3) {
+            if (config.debug && new Date().getTime() - this.last_data > 60e3) {
                 this.log("重启中....");
                 this.run();
             }
@@ -125,11 +127,11 @@ class Miner {
                         var m = text.match(/<td>[^<>]*</g);
                         var n = `<td>`.length;
                         var name = m[0].slice(n).replace(/<$/, "");
-						var value = parseFloat(m[2].slice(n)) || 0;
-                        var cost=0;
-						text.replace(/>(\d+\.\d+)%</,(x,x1)=>{
-							cost = x1;
-						});
+                        var value = parseFloat(m[2].slice(n)) || 0;
+                        var cost = 0;
+                        text.replace(/>(\d+\.\d+)%</, (x, x1) => {
+                            cost = x1;
+                        });
                         value = value * (1 - cost / 100);
                         total += value;
                         // this.log(this.name, this.id, name, value);

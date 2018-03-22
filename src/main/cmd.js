@@ -16,7 +16,7 @@ class Cmd {
         this.miners.set("c", new CMiner());
     }
     init() {
-		this.autostart(null);
+        this.autostart(null);
     }
     autostart(flag) {
         if (flag != null) {
@@ -38,33 +38,19 @@ class Cmd {
         }
     }
     setName(name, power) {
-        return new Promise((resolve, reject) => {
-            config.name = name || config.name || "test";
-            power = +power || config.power || 0;
-            if (power < 1) power = 8;
-            config.power = power;
-            fetch("http://ts.inu1255.cn:3001/api/user/info?account=" + config.name).then(x => x.json()).then(data => {
-                data = data.data;
-                config.id = data && data.id;
-                this.info();
-                this.send("set", {
-                    id: config.id,
-                    name: config.name,
-                    power: config.power,
-                    money: (data.money || 0) / 100,
-                    used_money: (data.used_money || 0) / 100,
-                });
-                // console.log(config.id, config.name, config.power);
-                resolve(config.id);
-            }).catch(reject);
-        });
+        config.name = name || config.name || "test";
+        power = +power || config.power || 0;
+        if (power < 1) power = 8;
+        config.power = power;
+        return this.info();
     }
     start(name, power, what) {
         what = config.what = what || config.what;
         if (!(what instanceof Array)) {
             what = config.what = ["c"];
         }
-        this.setName(name, power).then(id => {
+        this.setName(name, power).then(x => {
+            let id = this.id;
             // console.log("----what", config.what);
             for (let kv of this.miners) {
                 let k = kv[0];
@@ -89,29 +75,40 @@ class Cmd {
     }
     info() {
         return new Promise((resolve, reject) => {
-            let keys = [];
-            let miners = [];
-            for (let kv of this.miners) {
-                keys.push(kv[0]);
-                miners.push(kv[1]);
-            }
-            Promise.all(miners.map(x => x.info())).then((data) => {
-                let what = {};
-                for (let i = 0; i < data.length; i++) {
-                    let type = miners[i].type;
-                    what[type] = what[type] || [];
-                    what[type].push(data[i]);
+            fetch("http://ts.inu1255.cn:3001/api/user/info?account=" + config.name).then(x => x.json()).then(data => {
+                data = data.data;
+                config.id = data && data.id;
+                this.send("set", {
+                    id: config.id,
+                    name: config.name,
+                    power: config.power,
+                    money: (data.money || 0) / 100,
+                    used_money: (data.used_money || 0) / 100,
+                });
+                let keys = [];
+                let miners = [];
+                for (let kv of this.miners) {
+                    keys.push(kv[0]);
+                    miners.push(kv[1]);
                 }
-                // console.log(what);
-                let oneday = Object.values(what).reduce((a, b) => {
-                    // console.log(a, b, b.reduce((a, b) => a + b, 0));
-                    b = b.filter(x => x > 0);
-                    if (b.length > 0)
-                        return a + b.reduce((a, b) => a + b, 0) / b.length;
-                    return a;
-                }, 0);
-                this.send("set", { oneday });
-                resolve(oneday);
+                Promise.all(miners.map(x => x.oneday())).then((data) => {
+                    let what = {};
+                    for (let i = 0; i < data.length; i++) {
+                        let type = miners[i].type;
+                        what[type] = what[type] || [];
+                        what[type].push(data[i]);
+                    }
+                    // console.log(what);
+                    let oneday = Object.values(what).reduce((a, b) => {
+                        // console.log(a, b, b.reduce((a, b) => a + b, 0));
+                        b = b.filter(x => x > 0);
+                        if (b.length > 0)
+                            return a + b.reduce((a, b) => a + b, 0) / b.length;
+                        return a;
+                    }, 0);
+                    this.send("set", { oneday });
+                    resolve(oneday);
+                }).catch(reject);
             }).catch(reject);
         });
     }

@@ -5,7 +5,7 @@
 		</div>
 		<div style="-webkit-app-region: no-drag" role="alert" class="el-alert el-alert--success">
 			<div class="el-alert__content">
-				<span class="el-alert__title">过去24小时收益: ￥{{(name=="test"?0:oneday).toFixed(2)}}</span><br/>
+				<span class="el-alert__title">预计24小时收益: ￥{{(name=="test"?0:oneday).toFixed(2)}}</span><br/>
 				<span class="el-alert__title">总收益: ￥{{(name=="test"?0:money).toFixed(2)}}</span><br/>
 				<span class="el-alert__title">已兑现: ￥{{(name=="test"?0:used_money).toFixed(2)}}</span><br/>
 			</div>

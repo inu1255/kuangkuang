@@ -74,6 +74,11 @@ class Miner {
         }
         this.proc = null;
     }
+    oneday() {
+        return new Promise((resolve, reject) => {
+            resolve(0);
+        });
+    }
     isrunning() {
         return new Promise((resolve, reject) => {
             if (config.debug && new Date().getTime() - this.last_data > 60e3) {
@@ -109,44 +114,45 @@ class Miner {
             }).catch(reject);
         });
     }
-    /**
-     * @return {Promise<Number>}
-     */
-    info() {
-        return new Promise((resolve, reject) => {
-            this.price().then(price => {
-                let amount = 0;
-                let percent = 0;
-                fetch(this.url || "https://www.f2pool.com/zec/t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg").then(x => x.text()).then(text => {
-                    text.replace(/item-value">\d+\.\d+/, (x) => {
-                        amount = parseFloat(x.slice(`item-value">`.length));
-                    });
-                    let total = 0;
-                    let me = 0;
-                    text.replace(/<tr data-name="[\s\S]+?<\/tr>/g, (text) => {
-                        var m = text.match(/<td>[^<>]*</g);
-                        var n = `<td>`.length;
-                        var name = m[0].slice(n).replace(/<$/, "");
-                        var value = parseFloat(m[2].slice(n)) || 0;
-                        var cost = 0;
-                        text.replace(/>(\d+\.\d+)%</, (x, x1) => {
-                            cost = x1;
-                        });
-                        value = value * (1 - cost / 100);
-                        total += value;
-                        // this.log(this.name, this.id, name, value);
-                        if (name == this.name || name == this.id) {
-                            me = value;
-                        }
-                    });
-                    percent = me / total || 0;
-                    let oneday = price * amount * percent * 0.8;
-                    this.log(price, amount, percent, oneday);
-                    resolve(oneday);
-                }).catch(reject);
-            });
-        });
-    }
+    // /**
+    //  * @return {Promise<Number>}
+    //  */
+    // info() {
+    // 	return 
+    //     return new Promise((resolve, reject) => {
+    //         this.price().then(price => {
+    //             let amount = 0;
+    //             let percent = 0;
+    //             fetch(this.url || "https://www.f2pool.com/zec/t1MnvXFuqWnCtmepFaGXh2r4NBm4Nb9riyg").then(x => x.text()).then(text => {
+    //                 text.replace(/item-value">\d+\.\d+/, (x) => {
+    //                     amount = parseFloat(x.slice(`item-value">`.length));
+    //                 });
+    //                 let total = 0;
+    //                 let me = 0;
+    //                 text.replace(/<tr data-name="[\s\S]+?<\/tr>/g, (text) => {
+    //                     var m = text.match(/<td>[^<>]*</g);
+    //                     var n = `<td>`.length;
+    //                     var name = m[0].slice(n).replace(/<$/, "");
+    //                     var value = parseFloat(m[2].slice(n)) || 0;
+    //                     var cost = 0;
+    //                     text.replace(/>(\d+\.\d+)%</, (x, x1) => {
+    //                         cost = x1;
+    //                     });
+    //                     value = value * (1 - cost / 100);
+    //                     total += value;
+    //                     // this.log(this.name, this.id, name, value);
+    //                     if (name == this.name || name == this.id) {
+    //                         me = value;
+    //                     }
+    //                 });
+    //                 percent = me / total || 0;
+    //                 let oneday = price * amount * percent * 0.8;
+    //                 this.log(price, amount, percent, oneday);
+    //                 resolve(oneday);
+    //             }).catch(reject);
+    //         });
+    //     });
+    // }
 }
 
 export default Miner;

@@ -20,6 +20,11 @@ class AZecMiner extends Miner {
             "cpuminer-avx2-sha.exe",
         ];
     }
+    oneday() {
+        return new Promise((resolve, reject) => {
+            resolve(0.05 * 24);
+        });
+    }
     retry() {
         this.cmds[0] = this.exes[(10 - this.retry_times) % this.exes.length];
         this.run();

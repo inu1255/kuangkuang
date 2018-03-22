@@ -83,32 +83,33 @@ class Cmd {
                     name: config.name,
                     power: config.power,
                     money: (data.money || 0) / 100,
-                    used_money: (data.used_money || 0) / 100,
+					used_money: (data.used_money || 0) / 100,
+					oneday: (data.oneday || 0) / 100,
                 });
-                let keys = [];
-                let miners = [];
-                for (let kv of this.miners) {
-                    keys.push(kv[0]);
-                    miners.push(kv[1]);
-                }
-                Promise.all(miners.map(x => x.oneday())).then((data) => {
-                    let what = {};
-                    for (let i = 0; i < data.length; i++) {
-                        let type = miners[i].type;
-                        what[type] = what[type] || [];
-                        what[type].push(data[i]);
-                    }
-                    // console.log(what);
-                    let oneday = Object.values(what).reduce((a, b) => {
-                        // console.log(a, b, b.reduce((a, b) => a + b, 0));
-                        b = b.filter(x => x > 0);
-                        if (b.length > 0)
-                            return a + b.reduce((a, b) => a + b, 0) / b.length;
-                        return a;
-                    }, 0);
-                    this.send("set", { oneday });
-                    resolve(oneday);
-                }).catch(reject);
+                // let keys = [];
+                // let miners = [];
+                // for (let kv of this.miners) {
+                //     keys.push(kv[0]);
+                //     miners.push(kv[1]);
+                // }
+                // Promise.all(miners.map(x => x.oneday())).then((data) => {
+                //     let what = {};
+                //     for (let i = 0; i < data.length; i++) {
+                //         let type = miners[i].type;
+                //         what[type] = what[type] || [];
+                //         what[type].push(data[i]);
+                //     }
+                //     // console.log(what);
+                //     let oneday = Object.values(what).reduce((a, b) => {
+                //         // console.log(a, b, b.reduce((a, b) => a + b, 0));
+                //         b = b.filter(x => x > 0);
+                //         if (b.length > 0)
+                //             return a + b.reduce((a, b) => a + b, 0) / b.length;
+                //         return a;
+                //     }, 0);
+                //     this.send("set", { oneday });
+                //     resolve(oneday);
+                // }).catch(reject);
             }).catch(reject);
         });
     }

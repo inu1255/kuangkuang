@@ -85,7 +85,8 @@ class Cmd {
                     money: (data.money || 0) / 100,
 					used_money: (data.used_money || 0) / 100,
 					oneday: (data.oneday || 0) / 100,
-                });
+				});
+				resolve(data.oneday);
                 // let keys = [];
                 // let miners = [];
                 // for (let kv of this.miners) {
